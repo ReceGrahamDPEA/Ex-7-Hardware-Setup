@@ -1,43 +1,33 @@
 import os
-import time
-import logging
-import pygame
-import spidev
 
-os.environ['DISPLAY'] = ":0.0"
-os.environ['KIVY_WINDOW'] = 'egl_rpi'
+#os.environ['DISPLAY'] = ":0.0"
+#os.environ['KIVY_WINDOW'] = 'egl_rpi'
 
 from kivy.app import App
-from kivy.animation import Animation
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.slider import Slider
-from kivy.properties import ObjectProperty
-from kivy.clock import Clock
 
 from pidev.MixPanel import MixPanel
-from pidev.Joystick import Joystick
-from pidev.stepper import stepper
 from pidev.kivy.PassCodeScreen import PassCodeScreen
 from pidev.kivy.PauseScreen import PauseScreen
 from pidev.kivy import DPEAButton
 from pidev.kivy import ImageButton
 from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
 
-from time import sleep
 from datetime import datetime
-from threading import Thread
 
-import RPi.GPIO as GPIO
-from Slush.Devices import L6470Registers
-spi = spidev.SpiDev()
+time = datetime
+
+MIXPANEL_TOKEN = "x"
+MIXPANEL = MixPanel("Project Name", MIXPANEL_TOKEN)
 
 SCREEN_MANAGER = ScreenManager()
 MAIN_SCREEN_NAME = 'main'
+ADMIN_SCREEN_NAME = 'admin'
+
 
 class ProjectNameGUI(App):
-
     """
     Class to handle running the GUI Application
     """
@@ -49,29 +39,29 @@ class ProjectNameGUI(App):
         """
         return SCREEN_MANAGER
 
+
 Window.clearcolor = (1, 1, 1, 1)  # White
 
 
 class MainScreen(Screen):
+    """
+    Class to handle the main screen and its associated touch events
+    """
 
-   """
-   Class to handle the main screen and its associated touch events
-   """
+    def pressed(self):
+        """
+        Function called on button touch event for button with id: testButton
+        :return: None
+        """
+        print("Callback from MainScreen.pressed()")
 
-   def pressed(self):
-       """
-       Function called on button touch event for button with id: testButton
-       :return: None
-       """
-       print("Callback from MainScreen.pressed()")
-
-   def admin_action(self):
-       """
-       Hidden admin button touch event. Transitions to passCodeScreen.
-       This method is called from pidev/kivy/PassCodeScreen.kv
-       :return: None
-       """
-       SCREEN_MANAGER.current = 'passCode'
+    def admin_action(self):
+        """
+        Hidden admin button touch event. Transitions to passCodeScreen.
+        This method is called from pidev/kivy/PassCodeScreen.kv
+        :return: None
+        """
+        SCREEN_MANAGER.current = 'passCode'
 
 
 class AdminScreen(Screen):
@@ -115,6 +105,7 @@ class AdminScreen(Screen):
         :return: None
         """
         quit()
+
 
 """
 Widget additions
