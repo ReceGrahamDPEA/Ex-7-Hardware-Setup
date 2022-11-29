@@ -1,0 +1,73 @@
+<MainScreen>:
+    #: import time __main__.time
+
+    name: 'main'
+    FloatLayout:
+        size_hint: None, None
+
+    DPEAButton:
+        size: 100, 100
+        center_x: root.width * 0.25
+        center_y: root.height * 0.5
+        background_color: 0,0,0,0
+        color: .255, .167, .45, 1
+        text: "Get position"
+        on_press: root.get_pos()
+
+    DPEAButton:
+        size: 100, 100
+        center_x: root.width * 0.75
+        center_y: root.height * 0.5
+        background_color: 0,0,0,0
+        color: .3, .4, .5, 1
+        text: "move"
+        on_press: root.move()
+
+    DPEAButton:
+        size: 100, 100
+        center_x: root.width * 0.5
+        center_y: root.height * 0.5
+        background_color: 0,0,0,0
+        color: .8, .4, .1, 1
+        text: "soft_stop"
+        on_press: root.soft_stop()
+
+    DPEAButton:
+        size: 100, 100
+        center_x: root.width * 0.25
+        center_y: root.height * 0.25
+        background_color: 0,0,0,0
+        color: .75, .1, .5, 1
+        text: "go home"
+        on_press: root.go_home()
+
+    DPEAButton:
+        size: 100, 100
+        center_x: root.width * 0.75
+        center_y: root.height * 0.75
+        background_color: 0,0,0,0
+        color: .6, .4, .5, 1
+        text: "FREE THEM!"
+        on_press: root.free_all()
+
+    DPEAButton:
+        size: 100, 100
+        center_x: root.width * 0.75
+        center_y: root.height * 0.25
+        background_color: 0,0,0,0
+        color: .5, .4, .4, 1
+        text: "home"
+        on_press: root.set_home()
+
+
+    DPEAButton:
+        # Quit button
+        size: 50, 50
+        center_x: root.width * 0.98
+        center_y: root.height * 0.02
+
+        background_color: 0,0,0,0
+        color: 0, 0, 0, 1
+
+        text: ""
+        on_press: root.exit_program()
