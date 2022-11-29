@@ -40,6 +40,7 @@ MAIN_SCREEN_NAME = 'main'
 ADMIN_SCREEN_NAME = 'admin'
 
 
+
 class ProjectNameGUI(App):
 
     """
@@ -57,9 +58,11 @@ class ProjectNameGUI(App):
 Window.clearcolor = (1, 1, 1, 1)  # White
 
 
+
 class MainScreen(Screen):
 
-
+    s0_rotation_direction = 0
+    
 
     def get_pos(self):
 
@@ -70,8 +73,19 @@ class MainScreen(Screen):
 
     def move(self):
 
-        s0.go_until_press(x, 6400)
+        s0.go_until_press(self.s0_rotation_direction, 6400)
 
+    def change_direction(self):
+
+        if self.s0_rotation_direction == 0:
+            self.s0_rotation_direction += 1
+            print(int(self.s0_rotation_direction))
+
+        else:
+            self.s0_rotation_direction -= 1
+            print(int(self.s0_rotation_direction))
+
+        s0.go_until_press(self.s0_rotation_direction, 6400)
 
     def set_home(self):
 
@@ -103,7 +117,9 @@ class MainScreen(Screen):
 
     @staticmethod
     def exit_program():
-
+        
+        s0.free_all()
+        print("freedom!")
         quit()
 
 
