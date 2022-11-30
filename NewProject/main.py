@@ -1,6 +1,10 @@
 import os
 import spidev
 
+from datetime import datetime
+from time import sleep
+from threading import Thread
+
 #os.environ['DISPLAY'] = ":0.0"
 #os.environ['KIVY_WINDOW'] = 'egl_rpi'
 
@@ -9,6 +13,7 @@ from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.properties import ObjectProperty
+from kivy.clock import Clock
 
 from pidev.stepper import stepper
 from pidev.MixPanel import MixPanel
@@ -19,9 +24,6 @@ from pidev.kivy import ImageButton
 from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
 
 from Slush.Devices import L6470Registers
-
-from datetime import datetime
-from time import sleep
 
 
 
@@ -61,8 +63,32 @@ Window.clearcolor = (1, 1, 1, 1)  # White
 
 class MainScreen(Screen):
 
+    """Things that are actually happening when the MainScreen class is called"""
+
     s0_rotation_direction = 0
-    
+
+
+    def __init__(self, **kw):
+        super().__init__(**kw)
+
+        Clock.schedule_interval(self.speed_change, 0.002)
+
+
+    def set_home(self):
+
+        "Sets the home of the stepper motor in port 0"
+
+        s0.set_as_home()
+        print("set as home")
+
+
+    def go_home(self):
+
+        "Tells the motor in port 0 to go to its home"
+
+        s0.goHome()
+        print("go home")
+
 
     def get_pos(self):
 
@@ -71,9 +97,17 @@ class MainScreen(Screen):
         s0.get_position_in_units()
         print(int(s0.get_position_in_units()))
 
+
     def move(self):
 
-        s0.go_until_press(self.s0_rotation_direction, 6400)
+        if s0.is_busy() == False:
+            s0.go_until_press(self.s0_rotation_direction, self.ids.speed_slider.value)
+            print("moving!")
+
+        else:
+            s0.free()
+            print("s0: I'm free!!")
+
 
     def change_direction(self):
 
@@ -85,14 +119,20 @@ class MainScreen(Screen):
             self.s0_rotation_direction -= 1
             print(int(self.s0_rotation_direction))
 
-        s0.go_until_press(self.s0_rotation_direction, 6400)
+        s0.go_until_press(self.s0_rotation_direction, self.ids.speed_slider.value)
 
-    def set_home(self):
 
-        "Sets the home of the stepper motor in port 0"
+    def speed_change(self, dt):
 
-        s0.set_as_home()
-        print("set as home")
+        s0.go_until_press(self.s0_rotation_direction, self.ids.speed_slider.value)
+
+
+    def the_dance(self):
+
+        s0.get_position_in_units()
+        s0.go_until_press(0, 6400)
+
+
 
     def soft_stop(self):
 
@@ -101,12 +141,6 @@ class MainScreen(Screen):
         s0.softStop()
         print("stopping!")
 
-    def go_home(self):
-
-        "Tells the motor in port 0 to go to its home"
-
-        s0.goHome()
-        print("go home")
 
     def free_all(self):
 
@@ -117,7 +151,7 @@ class MainScreen(Screen):
 
     @staticmethod
     def exit_program():
-        
+
         s0.free_all()
         print("freedom!")
         quit()
