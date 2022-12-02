@@ -125,3 +125,13 @@
         text: str(root.position)
         color: .8, .25, .5, 1
 
+    DPEAButton:
+        #transitions to the servo screen
+        id: servo_screen_button
+        size: 100, 100
+        center_x: root.width * 0.5
+        center_y: root.height * 0.90
+        background_color: 0,0,0,0
+        color: .6, .2, .3, 1
+        text: "servo screen"
+        on_release: app.root.current = "servo"

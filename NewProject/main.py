@@ -35,7 +35,7 @@ MIXPANEL = MixPanel("Project Name", MIXPANEL_TOKEN)
 SCREEN_MANAGER = ScreenManager()
 MAIN_SCREEN_NAME = 'main'
 ADMIN_SCREEN_NAME = 'admin'
-
+SERVO_SCREEN_NAME = 'servo'
 
 
 class ProjectNameGUI(App):
@@ -199,6 +199,29 @@ class MainScreen(Screen):
 
 
 
+class ServoScreen(Screen):
+    """
+    Class to handle the AdminScreen and its functionality
+    """
+
+    def __init__(self, **kwargs):
+        """
+        Load the AdminScreen.kv file. Set the necessary names of the screens for the PassCodeScreen to transition to.
+        Lastly super Screen's __init__
+        :param kwargs: Normal kivy.uix.screenmanager.Screen attributes
+        """
+        Builder.load_file('ServoScreen.kv')
+
+        super(ServoScreen, self).__init__(**kwargs)
+
+    @staticmethod
+    def transition_back():
+        """
+        Transition back to the main screen
+        :return:
+        """
+        SCREEN_MANAGER.current = MAIN_SCREEN_NAME
+
 
 
 
@@ -255,6 +278,7 @@ SCREEN_MANAGER.add_widget(MainScreen(name=MAIN_SCREEN_NAME))
 SCREEN_MANAGER.add_widget(PassCodeScreen(name='passCode'))
 SCREEN_MANAGER.add_widget(PauseScreen(name='pauseScene'))
 SCREEN_MANAGER.add_widget(AdminScreen(name=ADMIN_SCREEN_NAME))
+SCREEN_MANAGER.add_widget(ServoScreen(name='servo'))
 
 """
 MixPanel
