@@ -26,11 +26,6 @@ from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
 from Slush.Devices import L6470Registers
 
 
-
-s0 = stepper(port=0, micro_steps=32, hold_current=20, run_current=20, accel_current=20, deaccel_current=20,
-    steps_per_unit=200, speed=2)
-
-
 time = datetime
 spi = spidev.SpiDev()
 
@@ -59,26 +54,29 @@ class ProjectNameGUI(App):
 
 Window.clearcolor = (1, 1, 1, 1)  # White
 
+"""This stepper definition is used in the main screen and is called with s0"""
+
+s0 = stepper(port=0, micro_steps=32, hold_current=20, run_current=20, accel_current=20, deaccel_current=20,
+             steps_per_unit=200, speed=2)
 
 
 class MainScreen(Screen):
 
-    """Things that are actually happening when the MainScreen class is called
-    These variables are only defined here so they can be altered later.
-    s0_rotation_dierction controls the rotation direction and stays between 1 and 0.
-    clock_control helps control the clock, as if the_dance() has been called the variable should update
-    and cancel the clock until the value is returned to 0, which the_dance function does when it is finished running"""
-
     s0_rotation_direction = 0
     clock_control = 0
-
+    position = s0.get_position_in_units()
+    position = ObjectProperty()
 
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        Clock.schedule_interval(self.speed_change, 0.02)
+        """Things that are actually happening when the MainScreen class is called
+        These variables are only defined here so they can be altered later.
+        s0_rotation_dierction controls the rotation direction and stays between 1 and 0.
+        clock_control helps control the clock, as if the_dance() has been called the variable should update
+        and cancel the clock until the value is returned to 0, which the_dance function does when it is finished running"""
 
-        print("clock_control value " + str(self.clock_control))
+        Clock.schedule_interval(self.speed_change, 0.02)
 
 
     def set_home(self):
@@ -141,13 +139,32 @@ class MainScreen(Screen):
 
 
     def the_dance(self):
-        sleep(.01)
 
+        s0.free()
+        s0.set_as_home()
+        sleep(.1)
         self.clock_control += 1
+        print(str(s0.get_position_in_units()))
 
-        s0.get_position_in_units()
-        s0.start_relative_move(5)
+        s0.start_relative_move(15)
         s0.wait_move_finish()
+        print(str(s0.get_position_in_units()))
+
+        sleep(10)
+        s0.start_relative_move(10)
+        print(str(s0.get_position_in_units()))
+
+        sleep(8)
+        s0.goHome()
+        sleep(30)
+        print(str(s0.get_position_in_units()))
+
+        s0.start_relative_move(-100)
+        print(str(s0.get_position_in_units()))
+
+        sleep(10)
+        s0.goHome()
+        print(str(s0.get_position_in_units()))
 
         s0.free()
         self.clock_control -= 1
