@@ -11,7 +11,7 @@
         min: 50
         max: 6400
         step: 50
-        oreintation: "veritcal"
+        orientation: "horizontal"
         text: "position"
         sensitivity: 'handle'
 
@@ -95,16 +95,13 @@
         text: "home"
         on_press: root.set_home()
 
-
     DPEAButton:
         # Quit button
         size: 50, 50
-        center_x: root.width * 0.98
-        center_y: root.height * 0.02
-
+        center_x: root.width * 0.99
+        center_y: root.height * 0.01
         background_color: 0,0,0,0
         color: 0, 0, 0, 1
-
         text: ""
         on_press: root.exit_program()
 
@@ -129,9 +126,18 @@
         #transitions to the servo screen
         id: servo_screen_button
         size: 100, 100
-        center_x: root.width * 0.5
-        center_y: root.height * 0.90
+        center_x: root.width * 0.25
+        center_y: root.height * 0.75
         background_color: 0,0,0,0
-        color: .6, .2, .3, 1
+        color: .6, .2, .8, 1
         text: "servo screen"
         on_release: app.root.current = "servo"
+
+    DPEAButton:
+        size: 100, 100
+        center_x: root.width * 0.5
+        center_y: root.height * 0.1
+        background_color: 0,0,0,0
+        color: .2, .2, .5, 1
+        text: "Stop"
+        on_press: root.cyprus_stop()

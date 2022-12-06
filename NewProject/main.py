@@ -1,5 +1,6 @@
 import os
 import spidev
+import RPi.GPIO as GPIO
 
 from datetime import datetime
 from time import sleep
@@ -15,16 +16,18 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.properties import ObjectProperty
 from kivy.clock import Clock
 
+from pidev.Cyprus_Commands import Cyprus_Commands_RPi as cyprus
 from pidev.stepper import stepper
 from pidev.MixPanel import MixPanel
 from pidev.kivy.PassCodeScreen import PassCodeScreen
 from pidev.kivy.PauseScreen import PauseScreen
 from pidev.kivy import DPEAButton
 from pidev.kivy import ImageButton
-from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
 
 from Slush.Devices import L6470Registers
-
+cyprus.initialize()
+cyprus.setup_servo(1)  # sets up P4 on the RPiMIB as an RC servo style output
+cyprus.set_servo_position(1, 0.5)
 
 time = datetime
 spi = spidev.SpiDev()
@@ -64,7 +67,6 @@ class MainScreen(Screen):
 
     s0_rotation_direction = 0
     clock_control = 0
-    position = s0.get_position_in_units()
     position = ObjectProperty()
 
     def __init__(self, **kw):
@@ -76,7 +78,8 @@ class MainScreen(Screen):
         clock_control helps control the clock, as if the_dance() has been called the variable should update
         and cancel the clock until the value is returned to 0, which the_dance function does when it is finished running"""
 
-        Clock.schedule_interval(self.speed_change, 0.02)
+        Clock.schedule_interval(self.speed_change, 0.5)
+        Clock.schedule_interval(self.position_update, 0.5)
 
 
     def set_home(self):
@@ -104,11 +107,17 @@ class MainScreen(Screen):
 
         s0.get_position_in_units()
         print(int(s0.get_position_in_units()))
+        print(str(self.position))
+
+    def position_update(self, dt):
+
+        self.position = float(s0.get_position_in_units())
+
 
 
     def move(self):
 
-        if s0.is_busy() == False:
+        if not s0.is_busy():
             s0.go_until_press(self.s0_rotation_direction, self.ids.speed_slider.value)
             print("moving!")
 
@@ -119,7 +128,7 @@ class MainScreen(Screen):
 
     def change_direction(self):
 
-        if s0.is_busy() == True:
+        if s0.is_busy():
             if self.s0_rotation_direction == 0:
                 self.s0_rotation_direction += 1
                 print("direction " + str(self.s0_rotation_direction))
@@ -134,7 +143,7 @@ class MainScreen(Screen):
     def speed_change(self, dt):
 
         if self.clock_control == 0:
-            if s0.is_busy() == True:
+            if s0.is_busy():
                 s0.go_until_press(self.s0_rotation_direction, self.ids.speed_slider.value)
 
 
@@ -187,10 +196,20 @@ class MainScreen(Screen):
         print("freedom!")
 
 
+    def cyprus_stop(self):
+
+        s0.free_all()
+        cyprus.set_servo_position(1, 0.5)
+        cyprus.close()
+
+
     @staticmethod
     def exit_program():
 
         s0.free_all()
+        cyprus.set_servo_position(1, 0.5)
+        cyprus.close()
+        GPIO.cleanup()
         print("freedom!")
         quit()
 
@@ -206,13 +225,15 @@ class ServoScreen(Screen):
 
     def __init__(self, **kwargs):
         """
-        Load the AdminScreen.kv file. Set the necessary names of the screens for the PassCodeScreen to transition to.
-        Lastly super Screen's __init__
-        :param kwargs: Normal kivy.uix.screenmanager.Screen attributes
+        Load the ServoScreen.kv file. Controls Servo Motor functionality and has a button to transition back to the
+        main screen. Lastly super Screen's __init__ :param kwargs: Normal kivy.uix.screenmanager.Screen attributes
         """
+
         Builder.load_file('ServoScreen.kv')
 
         super(ServoScreen, self).__init__(**kwargs)
+
+        #Clock.schedule_interval(self.servo_update, 0.5)
 
     @staticmethod
     def transition_back():
@@ -223,6 +244,53 @@ class ServoScreen(Screen):
         SCREEN_MANAGER.current = MAIN_SCREEN_NAME
 
 
+    def servo_state_0(self):
+
+        """Button for the servo state being in position 0"""
+
+        cyprus.set_servo_position(1, 0)
+
+
+    def servo_state_1(self):
+
+        """Button for the servo state being in position 1"""
+
+        cyprus.set_servo_position(1, 1)
+
+
+    def Talon_button_1(self):
+
+        """Button for the servo state being in position 1"""
+
+        print("1")
+        cyprus.set_servo_position(1, .6)
+        sleep(1)
+        print("2")
+        cyprus.set_servo_position(1, 0.5)
+        sleep(5)
+        print("3")
+        cyprus.set_servo_position(1, .4)
+        sleep(1)
+        print("4")
+        cyprus.set_servo_position(1, 0.5)
+        print("funny")
+
+
+
+
+#    def servo_update(self, dt):
+#
+#        """Function to handle the limit switch and thus the servo motor"""
+#
+#        if SCREEN_MANAGER.current == SERVO_SCREEN_NAME:
+#           print("hah")
+#            if cyprus.read_gpio() & 0b0001:  # binary bitwise AND of the value returned from read.gpio()
+#
+#                cyprus.set_servo_position(1, .45)
+#
+#            else:
+#
+#                cyprus.set_servo_position(1, .55)
 
 
 
